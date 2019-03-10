@@ -1,7 +1,15 @@
 backend job list:
-
-
-
+    1.serializer banano hoy nai
+    2.API link banate hobe
+    3.Blog er kaj ta totally baki ace
+    4.Survey system ta ekhono bujhi nai
+    5.Ask a doctor (Patient Feature add korte hobe)
+    6.Blog setting er kaj gulo ekhono kora hoy nai
 
 
 frontend job list:
+    1.API link diye test korte hobe
+    2.motamuti sob feature gulo ready kora ace
+    3.baki aceshudhu profile change kora ta
+    4. ar kichu jinis handle korte hobe
+    
