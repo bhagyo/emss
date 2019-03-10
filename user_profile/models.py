@@ -45,6 +45,7 @@ class Disease(models.Model):
     prescription = models.TextField(null=True, blank=True)
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
+    symtomps = models.TextField(blank=True,null=True)
 
     def __str__(self):
         return str(self.name)
@@ -62,6 +63,7 @@ class Patient(models.Model):
 
 class Appointment(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    #relation with doctor is missing
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     duration = models.IntegerField(blank=True, null=True)
