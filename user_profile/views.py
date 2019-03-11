@@ -9,9 +9,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 
-from .models import Doctor, Patient, Profile
-from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, DoctorSerializer, PatientSerializer
-
+from .models import Doctor, Patient, Profile, Address, Appointment, Disease
+from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, DoctorSerializer, PatientSerializer, \
+    AddressSerializer, DiseaseSerializer
 
 """class UserListSingleAPIView(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
@@ -69,3 +69,25 @@ class LoginAPIView(APIView):
             return Response({'message': 'User logged in'}, status=HTTP_200_OK)
 
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class AddressListAPIView(ListAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+
+class AddressRetrieveAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+
+class DiseaseListAPIView(ListAPIView):
+    queryset = Disease.objects.all()
+    serializer_class = DiseaseSerializer
+
+
+class DiseaseRetrieveAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Disease.objects.all()
+    serializer_class = DiseaseSerializer
+
+
