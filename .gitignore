@@ -7,6 +7,8 @@
 *.pot
 *.pyc
 __pycache__/
+**/migrations/
+**/**/migrations
 local_settings.py
 db.sqlite3
 media
