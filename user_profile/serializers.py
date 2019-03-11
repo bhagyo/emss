@@ -1,9 +1,23 @@
 from django.contrib.auth.models import User
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
-from rest_framework.fields import BooleanField, CharField, DateField, EmailField
+from rest_framework.fields import BooleanField, CharField, DateField, EmailField, ImageField
 from rest_framework.exceptions import NotFound, ValidationError
 
-from .models import Doctor, Patient, Profile
+from .models import Address, Appointment, Disease, Doctor, Patient, Profile
+
+
+class AddressSerializer(ModelSerializer):
+    class Meta:
+        model = Address
+        exclude = ['id']
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email']
+        read_only_fields = ['username']
 
 
 class RegisterSerializer(Serializer):
@@ -17,7 +31,7 @@ class RegisterSerializer(Serializer):
     password = CharField(label='Password', max_length=150, required=True, allow_null=False, allow_blank=False)
     password_confirmation = CharField(label='Confirm Password', max_length=150, required=True, allow_null=False,
                                       allow_blank=False)
-    address = CharField(label='Address', required=False, allow_null=True, allow_blank=True, trim_whitespace=True)
+    address = AddressSerializer()
     date_of_birth = DateField(label='Date Of Birth', required=True, allow_null=False)
     is_doctor = BooleanField(label='Is Doctor', default=False)
 
@@ -52,10 +66,13 @@ class RegisterSerializer(Serializer):
 
         user = User.objects.create_user(**user_data)
 
+        user_address_data = validated_data['address']
+        address = Address.objects.create(**user_address_data)
+
         user_profile_data = dict()
-        user_profile_data['address'] = validated_data.get('address')
         user_profile_data['date_of_birth'] = validated_data.get('date_of_birth')
         user_profile_data['user'] = user
+        user_profile_data['address'] = address
 
         profile = Profile.objects.create(**user_profile_data)
 
@@ -65,6 +82,9 @@ class RegisterSerializer(Serializer):
             Patient.objects.create(profile=profile)
 
         return validated_data
+
+    def update(self, instance, validated_data):
+        return instance
 
 
 class LoginSerializer(Serializer):
@@ -90,16 +110,16 @@ class LoginSerializer(Serializer):
         # data['token'] = 'random token is here for test'
         return data
 
+    def create(self, validated_data):
+        return validated_data
 
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'username', 'email']
-        read_only_fields = ['username']
+    def update(self, instance, validated_data):
+        return instance
 
 
 class ProfileSerializer(ModelSerializer):
     user = UserSerializer()
+    address = AddressSerializer()
 
     class Meta:
         model = Profile
@@ -116,16 +136,27 @@ class DoctorSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         profile_data = validated_data['profile']
         user_data = profile_data['user']
+        user_address = profile_data['address']
 
         instance.profile.user.first_name = user_data.get('first_name', instance.profile.user.first_name)
         instance.profile.user.last_name = user_data.get('last_name', instance.profile.user.last_name)
         instance.profile.user.email = user_data.get('email', instance.profile.user.email)
         instance.profile.user.save()
 
-        instance.profile.address = profile_data.get('address', instance.profile.address)
+        instance.profile.address.division = user_address.get('division', instance.profile.address.division)
+        instance.profile.address.district = user_address.get('district', instance.profile.address.district)
+        instance.profile.address.upozilla = user_address.get('upozilla', instance.profile.address.upozilla)
+        instance.profile.address.address = user_address.get('address', instance.profile.address.address)
+        instance.profile.address.save()
+
+        instance.profile.sex = profile_data.get('sex', instance.profile.sex)
+        instance.profile.contact_no = profile_data.get('contact_no', instance.profile.contact_no)
         instance.profile.date_of_birth = profile_data.get('date_of_birth', instance.profile.date_of_birth)
         instance.profile.save()
 
+        instance.speciality = validated_data.get('speciality', instance.speciality)
+        instance.qualification = validated_data.get('qualification', instance.qualification)
+        instance.fees = validated_data.get('fees', instance.fees)
         instance.bmdc = validated_data.get('bmdc', instance.bmdc)
         instance.save()
 
@@ -134,6 +165,7 @@ class DoctorSerializer(ModelSerializer):
 
 class PatientSerializer(ModelSerializer):
     profile = ProfileSerializer()
+    diseases = serializers.PrimaryKeyRelatedField(queryset=Disease.objects.all(),many=True)
 
     class Meta:
         model = Patient
@@ -142,17 +174,33 @@ class PatientSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         profile_data = validated_data['profile']
         user_data = profile_data['user']
+        user_address = profile_data['address']
 
         instance.profile.user.first_name = user_data.get('first_name', instance.profile.user.first_name)
         instance.profile.user.last_name = user_data.get('last_name', instance.profile.user.last_name)
         instance.profile.user.email = user_data.get('email', instance.profile.user.email)
         instance.profile.user.save()
 
-        instance.profile.address = profile_data.get('address', instance.profile.address)
+        instance.profile.address.division = user_address.get('division', instance.profile.address.division)
+        instance.profile.address.district = user_address.get('district', instance.profile.address.district)
+        instance.profile.address.upozilla = user_address.get('upozilla', instance.profile.address.upozilla)
+        instance.profile.address.address = user_address.get('address', instance.profile.address.address)
+        instance.profile.address.save()
+
+        instance.profile.sex = profile_data.get('sex', instance.profile.sex)
+        instance.profile.contact_no = profile_data.get('contact_no', instance.profile.contact_no)
         instance.profile.date_of_birth = profile_data.get('date_of_birth', instance.profile.date_of_birth)
         instance.profile.save()
 
-        instance.disease = validated_data.get('disease', instance.disease)
+        instance.blood_group = validated_data.get('blood_group', instance.blood_group)
+        instance.blood_pressure = validated_data.get('blood_pressure', instance.blood_pressure)
         instance.save()
 
         return instance
+
+
+class DiseaseSerializer(ModelSerializer):
+    patient = PatientSerializer(many=True,read_only=True)
+    class Meta:
+        model = Disease
+        exclude = ['id']
