@@ -7,7 +7,8 @@
 *.pot
 *.pyc
 __pycache__/
-**/migrations/
+migration/
+**/migrations/*
 **/**/migrations
 local_settings.py
 db.sqlite3
