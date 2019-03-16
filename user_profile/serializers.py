@@ -163,10 +163,16 @@ class DoctorSerializer(ModelSerializer):
         return instance
 
 
+class DiseaseSerializer(ModelSerializer):
+    class Meta:
+        model = Disease
+        exclude = ['id']
+
+
 class PatientSerializer(ModelSerializer):
     profile = ProfileSerializer()
-    diseases = serializers.PrimaryKeyRelatedField(queryset=Disease.objects.all(),many=True)
-
+    #diseases = serializers.PrimaryKeyRelatedField(queryset=Disease.objects.all(), many=True)
+    diseases = DiseaseSerializer#(many=True,read_only=False)
     class Meta:
         model = Patient
         exclude = ['id']
@@ -198,9 +204,11 @@ class PatientSerializer(ModelSerializer):
 
         return instance
 
-
+'''
 class DiseaseSerializer(ModelSerializer):
-    patient = PatientSerializer(many=True,read_only=True)
+    patient = PatientSerializer(many=True, read_only=False)
+
     class Meta:
         model = Disease
         exclude = ['id']
+'''

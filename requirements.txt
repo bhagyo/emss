@@ -1,5 +1,6 @@
 Django==2.1.7
 django-cors-headers==2.5.0
+django-filter==2.1.0
 djangorestframework==3.9.2
 Pillow==5.4.1
 pytz==2018.9

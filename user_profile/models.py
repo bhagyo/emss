@@ -61,7 +61,6 @@ class Patient(models.Model):
     diseases = models.ManyToManyField(Disease)
     blood_group = models.CharField(max_length=10, null=True, blank=True)
     blood_pressure = models.CharField(max_length=10, blank=True, null=True)
-    diseases = models.ManyToManyField(Disease)
 
     def __str__(self):
         return str(self.profile)

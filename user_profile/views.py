@@ -1,9 +1,18 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from rest_framework.permissions import (
+    AllowAny, IsAuthenticated
+)
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from django_filters import FilterSet
+from django_filters import rest_framework as filters
 
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
@@ -91,3 +100,17 @@ class DiseaseRetrieveAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = DiseaseSerializer
 
 
+class DiseaseCreateAPIView(CreateAPIView):
+    queryset = Disease.objects.all()
+    serializer_class = DiseaseSerializer
+
+
+class DoctorSearchAPIView(ListAPIView):
+    serializer_class = DoctorSerializer
+    queryset = Doctor.objects.all()
+    filter_backends = (DjangoFilterBackend,SearchFilter)
+    filter_fields = ('speciality','profile__address__district',)
+    search_fields = ()
+    def get_queryset(self,request,):
+        queryset = Doctor.objects.all()
+        address = self.request.query_params.get('address.district')

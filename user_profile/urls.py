@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import (UserCreateAPIView, LoginAPIView, DoctorListAPIView, AddressListAPIView,
                     AddressRetrieveAPIView, DoctorRetrieveAPIView, PatientListAPIView, PatientRetrieveAPIView,
-                    DiseaseListAPIView, DiseaseRetrieveAPIView
+                    DiseaseListAPIView, DiseaseRetrieveAPIView, DiseaseCreateAPIView
                     )
 
 urlpatterns = [
@@ -23,5 +23,6 @@ urlpatterns = [
 
     path('disease/', DiseaseListAPIView.as_view(), name='disease'),
     path('disease/<int:pk>', DiseaseRetrieveAPIView.as_view(), name='disease_retrive'),
+    path('disease/create', DiseaseCreateAPIView.as_view(), name='disease_create'),
 
 ]
