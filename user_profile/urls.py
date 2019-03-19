@@ -1,13 +1,21 @@
-from django.urls import path
-
+from django.urls import path, include
+from django.conf.urls import include
+from . import views
 from .views import (UserCreateAPIView, LoginAPIView, DoctorListAPIView, AddressListAPIView,
                     AddressRetrieveAPIView, DoctorRetrieveAPIView, PatientListAPIView, PatientRetrieveAPIView,
-                    DiseaseListAPIView, DiseaseRetrieveAPIView, DiseaseCreateAPIView
+                    DiseaseListAPIView, DiseaseRetrieveAPIView, DiseaseCreateAPIView, DoctorSearchAPIView,
+                    AppointmentListAPIView, AppointmentCreateAPIView
                     )
 
+''''
+from rest_framework import routers
+router.register('v1/doctorextra/', DoctorSearchAPIView.as_view(),name='doctorextra')
+jodi uporer ta likhi tobe urlpatterns er vitore likhte hobe
+path('',include(router.urls))
+'''
+
 urlpatterns = [
-    # path('users/<int:pk>/', UserListSingleAPIView.as_view(), name='user_single'),
-    # path('users/', UserListAPIView.as_view(), name='user'),
+
     path('doctors/<int:pk>/', DoctorRetrieveAPIView.as_view(), name='doctors_retrieve'),
     path('doctors/', DoctorListAPIView.as_view(), name='doctors_list'),
 
@@ -23,6 +31,10 @@ urlpatterns = [
 
     path('disease/', DiseaseListAPIView.as_view(), name='disease'),
     path('disease/<int:pk>', DiseaseRetrieveAPIView.as_view(), name='disease_retrive'),
-    path('disease/create', DiseaseCreateAPIView.as_view(), name='disease_create'),
+    path('disease/create/', DiseaseCreateAPIView.as_view(), name='disease_create'),
 
+    path('v1/doctorextra/', DoctorSearchAPIView.as_view(), name='doctorextra'),
+
+    path('appointmentlist', AppointmentListAPIView.as_view(), name='AppointmentListAPIView'),
+    path('appointmentcreate', AppointmentCreateAPIView.as_view(), name='appointmentcreate'),
 ]
