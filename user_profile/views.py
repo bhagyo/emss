@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 
-from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,26 +9,14 @@ from rest_framework.permissions import (
     AllowAny, IsAuthenticated
 )
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
-from django_filters import FilterSet
-from django_filters import rest_framework as filters
-
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 
 from .models import Doctor, Patient, Profile, Address, Appointment, Disease
 from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, DoctorSerializer, PatientSerializer, \
-    AddressSerializer, DiseaseSerializer
-
-"""class UserListSingleAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class UserListAPIView(ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer"""
+    AddressSerializer, DiseaseSerializer, AppointmentSerializer
 
 
 class DoctorListAPIView(ListAPIView):
@@ -106,11 +93,40 @@ class DiseaseCreateAPIView(CreateAPIView):
 
 
 class DoctorSearchAPIView(ListAPIView):
-    serializer_class = DoctorSerializer
     queryset = Doctor.objects.all()
-    filter_backends = (DjangoFilterBackend,SearchFilter)
-    filter_fields = ('speciality','profile__address__district',)
-    search_fields = ()
-    def get_queryset(self,request,):
+    serializer_class = DoctorSerializer
+    filter_backends = (DjangoFilterBackend,OrderingFilter)
+    filter_fields = ('speciality', 'profile__address__district',)
+    ordering_fields = ('fees')
+
+    '''
+    def get_queryset(self):
         queryset = Doctor.objects.all()
-        address = self.request.query_params.get('address.district')
+        especiality = self.request.query_params.get('speciality','')
+
+        Doctor = queryset.filter(especiality=especiality)
+        return Response(Doctor.data,HTTP_200_OK)
+    '''
+
+    '''    
+    def get(self, request, *args, **kwargs):
+        #data = self.get_queryset(request)
+
+        speciality = request.query_params['speciality']
+        #district = request.query_params['speciality']
+        doctors = Doctor.objects.filter(speciality=speciality)
+
+        serializer = DoctorSerializer(doctors, many=True)
+
+        return Response(serializer.data, HTTP_200_OK)
+    '''
+
+
+class AppointmentListAPIView(ListAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+
+
+class AppointmentCreateAPIView(CreateAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
