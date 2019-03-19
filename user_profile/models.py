@@ -58,7 +58,7 @@ class Disease(models.Model):
 
 class Patient(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
-    diseases = models.ManyToManyField(Disease)
+    diseases = models.ManyToManyField(Disease,blank=True)
     blood_group = models.CharField(max_length=10, null=True, blank=True)
     blood_pressure = models.CharField(max_length=10, blank=True, null=True)
 

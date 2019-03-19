@@ -181,6 +181,7 @@ class PatientSerializer(ModelSerializer):
         profile_data = validated_data['profile']
         user_data = profile_data['user']
         user_address = profile_data['address']
+        user_diseases = validated_data['diseases']
 
         instance.profile.user.first_name = user_data.get('first_name', instance.profile.user.first_name)
         instance.profile.user.last_name = user_data.get('last_name', instance.profile.user.last_name)
@@ -192,6 +193,7 @@ class PatientSerializer(ModelSerializer):
         instance.profile.address.upozilla = user_address.get('upozilla', instance.profile.address.upozilla)
         instance.profile.address.address = user_address.get('address', instance.profile.address.address)
         instance.profile.address.save()
+
 
         instance.profile.sex = profile_data.get('sex', instance.profile.sex)
         instance.profile.contact_no = profile_data.get('contact_no', instance.profile.contact_no)
@@ -212,7 +214,7 @@ class AppointmentSerializer(ModelSerializer):
 
     doctor = DoctorSerializer(Doctor, context={'fields': ['Profile__User__first_name']})
     address = AddressSerializer()
-    patients = PatientSerializer(Patient, context={'fields': ['Profile__User__first_name']})
+    patients = PatientSerializer(Patient, context={'fields': ['Profile__User__first_name']}, many=True)
 
     class Meta:
         model = Appointment
