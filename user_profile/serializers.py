@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import ModelSerializer, Serializer, HyperlinkedModelSerializer
 from rest_framework.fields import BooleanField, CharField, DateField, EmailField, ImageField
 from rest_framework.exceptions import NotFound, ValidationError
 
@@ -171,8 +171,8 @@ class DiseaseSerializer(ModelSerializer):
 
 class PatientSerializer(ModelSerializer):
     profile = ProfileSerializer()
-    #diseases = serializers.PrimaryKeyRelatedField(queryset=Disease.objects.all(), many=True)
-    diseases = DiseaseSerializer#(many=True,read_only=False)
+    diseases = DiseaseSerializer(many=True)
+
     class Meta:
         model = Patient
         exclude = ['id']
@@ -204,11 +204,35 @@ class PatientSerializer(ModelSerializer):
 
         return instance
 
-'''
-class DiseaseSerializer(ModelSerializer):
-    patient = PatientSerializer(many=True, read_only=False)
+    def create(self, validated_data):
+        return validated_data
+
+
+class AppointmentSerializer(ModelSerializer):
+
+    doctor = DoctorSerializer(Doctor, context={'fields': ['Profile__User__first_name']})
+    address = AddressSerializer()
+    patients = PatientSerializer(Patient, context={'fields': ['Profile__User__first_name']})
 
     class Meta:
-        model = Disease
-        exclude = ['id']
-'''
+        model = Appointment
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        appointment_address = validated_data['address']
+
+        instance.start_time = validated_data.get('start_time', instance.start_time)
+        instance.end_time = validated_data.get('end_time', instance.end_time)
+        instance.patient_amount = validated_data.get('patient_amount', instance.patient_amount)
+        instance.save()
+
+        instance.address.division = appointment_address.get('division', instance.address.division)
+        instance.address.district = appointment_address.get('district', instance.address.district)
+        instance.address.upozilla = appointment_address.get('upozilla', instance.address.upozilla)
+        instance.address.address = appointment_address.get('address', instance.address.address)
+        instance.address.save()
+
+        return instance
+
+    def create(self, validated_data):
+        return validated_data
