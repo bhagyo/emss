@@ -97,29 +97,6 @@ class DoctorSearchAPIView(ListAPIView):
     serializer_class = DoctorSerializer
     filter_backends = (DjangoFilterBackend,OrderingFilter)
     filter_fields = ('speciality', 'profile__address__district',)
-    ordering_fields = ('fees')
-
-    '''
-    def get_queryset(self):
-        queryset = Doctor.objects.all()
-        especiality = self.request.query_params.get('speciality','')
-
-        Doctor = queryset.filter(especiality=especiality)
-        return Response(Doctor.data,HTTP_200_OK)
-    '''
-
-    '''    
-    def get(self, request, *args, **kwargs):
-        #data = self.get_queryset(request)
-
-        speciality = request.query_params['speciality']
-        #district = request.query_params['speciality']
-        doctors = Doctor.objects.filter(speciality=speciality)
-
-        serializer = DoctorSerializer(doctors, many=True)
-
-        return Response(serializer.data, HTTP_200_OK)
-    '''
 
 
 class AppointmentListAPIView(ListAPIView):
