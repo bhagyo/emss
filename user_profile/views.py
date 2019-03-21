@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED, \
+    HTTP_204_NO_CONTENT
 from rest_framework.permissions import (
     AllowAny, IsAuthenticated
 )
@@ -16,7 +16,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDe
 
 from .models import Doctor, Patient, Profile, Address, Appointment, Disease
 from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, DoctorSerializer, PatientSerializer, \
-    AddressSerializer, DiseaseSerializer, AppointmentSerializer
+    AddressSerializer, DiseaseSerializer, AppointmentSerializer, ProfileSerializer
 
 
 class DoctorListAPIView(ListAPIView):
@@ -95,7 +95,7 @@ class DiseaseCreateAPIView(CreateAPIView):
 class DoctorSearchAPIView(ListAPIView):
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
-    filter_backends = (DjangoFilterBackend,OrderingFilter)
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_fields = ('speciality', 'profile__address__district',)
 
 

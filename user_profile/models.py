@@ -46,7 +46,7 @@ class Doctor(models.Model):
 
 class Disease(models.Model):
     name = models.CharField(max_length=100)
-    lab_report = models.FileField(upload_to='uploads/', default='uploads/no-img.png')
+    lab_report = models.FileField(upload_to='uploads/', default='uploads/default_pic.png')
     prescription = models.TextField(null=True, blank=True)
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
@@ -68,11 +68,12 @@ class Patient(models.Model):
 
 class Appointment(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    address = models.TextField(null=True,blank=True)
+    location = models.CharField(max_length=50, null=True, blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     patient_amount = models.IntegerField()
-    patients = models.ManyToManyField(Patient)
+    patients = models.ManyToManyField(Patient,blank=True)
 
     def __str__(self):
         return str(self.doctor)

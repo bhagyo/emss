@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, Serializer, HyperlinkedModelSerializer
+from rest_framework.serializers import ModelSerializer, Serializer, ListSerializer
 from rest_framework.fields import BooleanField, CharField, DateField, EmailField, ImageField
 from rest_framework.exceptions import NotFound, ValidationError
 
@@ -107,7 +107,6 @@ class LoginSerializer(Serializer):
         if user is None:
             raise NotFound('User not found')
 
-        # data['token'] = 'random token is here for test'
         return data
 
     def create(self, validated_data):
@@ -143,65 +142,22 @@ class DoctorSerializer(ModelSerializer):
         instance.profile.user.email = user_data.get('email', instance.profile.user.email)
         instance.profile.user.save()
 
-        instance.profile.address.division = user_address.get('division', instance.profile.address.division)
-        instance.profile.address.district = user_address.get('district', instance.profile.address.district)
-        instance.profile.address.upozilla = user_address.get('upozilla', instance.profile.address.upozilla)
-        instance.profile.address.address = user_address.get('address', instance.profile.address.address)
+        instance.profile.address.division = user_address.get('division', instance.profile.address.division).lower()
+        instance.profile.address.district = user_address.get('district', instance.profile.address.district).lower()
+        instance.profile.address.upozilla = user_address.get('upozilla', instance.profile.address.upozilla).lower()
+        instance.profile.address.address = user_address.get('address', instance.profile.address.address).lower()
         instance.profile.address.save()
 
+        instance.profile.image = profile_data.get('image', instance.profile.image)
         instance.profile.sex = profile_data.get('sex', instance.profile.sex)
         instance.profile.contact_no = profile_data.get('contact_no', instance.profile.contact_no)
         instance.profile.date_of_birth = profile_data.get('date_of_birth', instance.profile.date_of_birth)
         instance.profile.save()
 
-        instance.speciality = validated_data.get('speciality', instance.speciality)
-        instance.qualification = validated_data.get('qualification', instance.qualification)
+        instance.speciality = validated_data.get('speciality', instance.speciality).lower()
+        instance.qualification = validated_data.get('qualification', instance.qualification).lower()
         instance.fees = validated_data.get('fees', instance.fees)
         instance.bmdc = validated_data.get('bmdc', instance.bmdc)
-        instance.save()
-
-        return instance
-
-
-class DiseaseSerializer(ModelSerializer):
-    class Meta:
-        model = Disease
-        exclude = ['id']
-
-
-class PatientSerializer(ModelSerializer):
-    profile = ProfileSerializer()
-    diseases = DiseaseSerializer(many=True)
-
-    class Meta:
-        model = Patient
-        exclude = ['id']
-
-    def update(self, instance, validated_data):
-        profile_data = validated_data['profile']
-        user_data = profile_data['user']
-        user_address = profile_data['address']
-        user_diseases = validated_data['diseases']
-
-        instance.profile.user.first_name = user_data.get('first_name', instance.profile.user.first_name)
-        instance.profile.user.last_name = user_data.get('last_name', instance.profile.user.last_name)
-        instance.profile.user.email = user_data.get('email', instance.profile.user.email)
-        instance.profile.user.save()
-
-        instance.profile.address.division = user_address.get('division', instance.profile.address.division)
-        instance.profile.address.district = user_address.get('district', instance.profile.address.district)
-        instance.profile.address.upozilla = user_address.get('upozilla', instance.profile.address.upozilla)
-        instance.profile.address.address = user_address.get('address', instance.profile.address.address)
-        instance.profile.address.save()
-
-
-        instance.profile.sex = profile_data.get('sex', instance.profile.sex)
-        instance.profile.contact_no = profile_data.get('contact_no', instance.profile.contact_no)
-        instance.profile.date_of_birth = profile_data.get('date_of_birth', instance.profile.date_of_birth)
-        instance.profile.save()
-
-        instance.blood_group = validated_data.get('blood_group', instance.blood_group)
-        instance.blood_pressure = validated_data.get('blood_pressure', instance.blood_pressure)
         instance.save()
 
         return instance
@@ -210,30 +166,137 @@ class PatientSerializer(ModelSerializer):
         return validated_data
 
 
+class DiseaseSerializer(ModelSerializer):
+    class Meta:
+        model = Disease
+        fields = '__all__'
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name',instance.name)
+        instance.lab_report = validated_data.get('lab_report',instance.lab_report)
+        instance.prescription = validated_data.get('prescription',instance.prescription)
+        instance.start_time = validated_data.get('start_time',instance.start_time)
+        instance.end_time = validated_data.get('end_time',instance.end_time)
+        instance.symptoms = validated_data.get('name',instance.symptoms)
+        instance.save()
+        return instance
+    def create(self, validated_data):
+        return validated_data
+
+'''
+class PatientSerializer(ListSerializer):
+    class Meta:
+        model = Patient
+        field = ['diseases']
+    def update(self, instance, validated_data):
+        disease_mapping = {disease.id: disease for disease in instance}
+        data_mapping = {item['id']: item for item in validated_data}
+        keep_disease = []
+        for disease_id,data in data_mapping.items():
+            disease = disease_mapping.get(disease_id,None)
+            if disease is None:
+                keep_disease(self.child.create(data))
+            else:
+                keep_disease.append(self.child.update(disease,data))
+        for disease_id, disease in disease_mapping.items():
+            if disease_id not in data_mapping:
+                disease.delete()
+        return keep_disease
+
+'''
+
+
+class PatientSerializer(ModelSerializer):
+    profile = ProfileSerializer()
+    diseases = DiseaseSerializer(many=True)
+
+    class Meta:
+        model = Patient
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data['profile']
+        user_data = profile_data['user']
+        user_address = profile_data['address']
+
+        instance.profile.user.first_name = user_data.get('first_name', instance.profile.user.first_name)
+        instance.profile.user.last_name = user_data.get('last_name', instance.profile.user.last_name)
+        instance.profile.user.email = user_data.get('email', instance.profile.user.email)
+        instance.profile.user.save()
+
+        instance.profile.address.division = user_address.get('division', instance.profile.address.division).lower()
+        instance.profile.address.district = user_address.get('district', instance.profile.address.district).lower()
+        instance.profile.address.upozilla = user_address.get('upozilla', instance.profile.address.upozilla).lower()
+        instance.profile.address.address = user_address.get('address', instance.profile.address.address).lower()
+        instance.profile.address.save()
+
+        instance.profile.sex = profile_data.get('sex', instance.profile.sex)
+        instance.profile.contact_no = profile_data.get('contact_no', instance.profile.contact_no)
+        instance.profile.date_of_birth = profile_data.get('date_of_birth', instance.profile.date_of_birth)
+        instance.profile.save()
+
+        '''
+        user_disease = validated_data.pop('diseases')
+        keep_disease = []
+        for disease in user_disease:
+            if "id" in disease.keys():
+                if Disease.objects.filter(id=disease["id"]).exist():
+                    c = Disease.objects.get(id = disease["id"])
+                    c.name = Disease.get('name',c.name)
+                    c.lab_report = Disease.get('lab_report',c.lab_report)
+                    c.prescription = Disease.get('prescription',c.prescription)
+                    c.start_time = Disease.get('start_time',c.start_time)
+                    c.end_time = Disease.get('end_time',c.end_time)
+                    c.symptoms = Disease.get('symptoms',c.symptoms)
+                    c.save()
+                    keep_disease.append(c)
+                else:
+                    continue
+            else:
+                c = Disease.objects.create(**disease, patient=instance)
+                keep_disease.append(c.id)
+        for disease in instance.diseases:
+            if disease.id not in keep_disease:
+                disease.delete()
+        instance.diseases=keep_disease
+        '''
+
+        disease_mapping = {disease.id: disease for disease in instance}
+        data_mapping = {item['id']: item for item in validated_data}
+        keep_disease = []
+        for disease_id, data in data_mapping.items():
+            disease = disease_mapping.get(disease_id, None)
+            if disease is None:
+                keep_disease(self.child.create(data))
+            else:
+                keep_disease.append(self.child.update(disease, data))
+        for disease_id, disease in disease_mapping.items():
+            if disease_id not in data_mapping:
+                disease.delete()
+
+        instance.blood_group = validated_data.get('blood_group', instance.blood_group.lower()).lower()
+        instance.blood_pressure = validated_data.get('blood_pressure', instance.blood_pressure)
+        instance.save()
+
+        return instance
+
+    def create(self, validated_data):
+        diseases = [Disease(**item) for item in validated_data]
+        return Disease.objects.bulk_create(diseases)
+
+
 class AppointmentSerializer(ModelSerializer):
-
-    doctor = DoctorSerializer(Doctor, context={'fields': ['Profile__User__first_name']})
-    address = AddressSerializer()
-    patients = PatientSerializer(Patient, context={'fields': ['Profile__User__first_name']}, many=True)
-
+    patients = PatientSerializer(many=True,allow_null=True)
     class Meta:
         model = Appointment
         fields = '__all__'
 
     def update(self, instance, validated_data):
-        appointment_address = validated_data['address']
-
+        instance.address = validated_data.get('address', instance.address).lower()
         instance.start_time = validated_data.get('start_time', instance.start_time)
         instance.end_time = validated_data.get('end_time', instance.end_time)
+        instance.patients = validated_data.get('patients',instance.patients)
         instance.patient_amount = validated_data.get('patient_amount', instance.patient_amount)
         instance.save()
-
-        instance.address.division = appointment_address.get('division', instance.address.division)
-        instance.address.district = appointment_address.get('district', instance.address.district)
-        instance.address.upozilla = appointment_address.get('upozilla', instance.address.upozilla)
-        instance.address.address = appointment_address.get('address', instance.address.address)
-        instance.address.save()
-
         return instance
 
     def create(self, validated_data):
