@@ -15,6 +15,10 @@ class AddressSerializer(ModelSerializer):
         instance.update(validated_data)
         return instance
 
+    def create(self, validated_data):
+        Address.objects.create_obj(validated_data)
+        return validated_data
+
 
 class UserSerializer(ModelSerializer):
     class Meta:
@@ -61,23 +65,14 @@ class RegisterSerializer(Serializer):
     def create(self, validated_data):
 
         user_data = dict()
-        user_data['username'] = validated_data['username']
-        user_data['email'] = validated_data['email']
-        user_data['password'] = validated_data['password']
-        user_data['first_name'] = validated_data['first_name']
-        user_data['last_name'] = validated_data['last_name']
+        user_data['username'] = validated_data.pop('username')
+        user_data['email'] = validated_data.pop('email')
+        user_data['password'] = validated_data.pop('password')
+        user_data['first_name'] = validated_data.pop('first_name')
+        user_data['last_name'] = validated_data.pop('last_name')
+        validated_data['user'] = user_data
 
-        user = User.objects.create_user(**user_data)
-
-        user_address_data = validated_data['address']
-        address = Address.objects.create(**user_address_data)
-
-        user_profile_data = dict()
-        user_profile_data['date_of_birth'] = validated_data.get('date_of_birth')
-        user_profile_data['user'] = user
-        user_profile_data['address'] = address
-
-        profile = Profile.objects.create(**user_profile_data)
+        profile = Profile.objects.create_obj(validated_data)
 
         if validated_data['is_doctor']:
             Doctor.objects.create(profile=profile)
@@ -91,7 +86,6 @@ class RegisterSerializer(Serializer):
 
 
 class LoginSerializer(Serializer):
-    # token = CharField(allow_blank=True, read_only=True)
     username = CharField(label='Username', max_length=150, required=True, allow_null=False, allow_blank=False,
                          trim_whitespace=True)
     password = CharField(label='Password', max_length=150, required=True, allow_null=False, allow_blank=False)
@@ -131,6 +125,10 @@ class ProfileSerializer(ModelSerializer):
         instance.update(validated_data)
         return instance
 
+    def create(self, validated_data):
+        Profile.objects.create_obj(validated_data)
+        return validated_data
+
 
 class DoctorSerializer(ModelSerializer):
     profile = ProfileSerializer()
@@ -144,21 +142,23 @@ class DoctorSerializer(ModelSerializer):
         return instance
 
     def create(self, validated_data):
+        Doctor.objects.create_obj(validated_data)
         return validated_data
 
 
 class DiseaseSerializer(ModelSerializer):
     class Meta:
         model = Disease
-        fields = ['__all__']
-        # exclude = ['id']
+        # fields = ['__all__']
+        exclude = ['id']
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
         return instance
 
-    '''def create(self, validated_data):
-        return validated_data'''
+    def create(self, validated_data):
+        Disease.objects.create_obj(validated_data)
+        return validated_data
 
 
 class PatientSerializer(ModelSerializer):
@@ -175,24 +175,24 @@ class PatientSerializer(ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        # diseases = [Disease(**item) for item in validated_data]
-        profile_data = validated_data.pop('profile')
-
-        patient_data = dict()
-
+        Patient.objects.create_obj(validated_data)
         return validated_data
 
 
 class AppointmentSerializer(ModelSerializer):
-    patients = PatientSerializer(many=True, allow_null=True)
+    doctor = DoctorSerializer()
+    address = AddressSerializer()
+    patients = PatientSerializer(many=True, read_only=True)
 
     class Meta:
         model = Appointment
-        fields = ['__all__']
+        # fields = ['__all__']
+        exclude = ['id']
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
         return instance
 
     def create(self, validated_data):
+        Appointment.objects.create_obj(validated_data)
         return validated_data

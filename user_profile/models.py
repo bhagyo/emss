@@ -144,12 +144,12 @@ class Patient(models.Model):
 
 class Appointment(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    address = models.TextField(null=True, blank=True)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
     location = models.CharField(max_length=50, null=True, blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     patient_amount = models.IntegerField()
-    patients = models.ManyToManyField(Patient, blank=True)
+    patients = models.ManyToManyField(Patient)
 
     objects = AppointmentManager()
 
