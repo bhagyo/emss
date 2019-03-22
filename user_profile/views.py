@@ -12,7 +12,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
 
 from .models import Doctor, Patient, Profile, Address, Appointment, Disease
 from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, DoctorSerializer, PatientSerializer, \
@@ -29,7 +29,7 @@ class DoctorRetrieveAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = DoctorSerializer
 
 
-class PatientListAPIView(ListAPIView):
+class PatientListAPIView(ListCreateAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
 
