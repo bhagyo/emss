@@ -6,10 +6,11 @@ from .patient import Patient
 
 
 class AppointmentManager(models.Manager):
-    def create_obj(self, data):
+    def create_obj(self, data,doctors_id):
         obj_data = dict()
-        obj_data['doctor'] = Doctor.objects.create_obj(data.get('doctor', dict()))
-        obj_data['address'] = Address.objects.create_obj(data.get('address', dict()))
+        obj_data['doctor'] = Doctor.objects.get(id=doctors_id)
+        #obj_data['doctor'] = Doctor.objects.create_obj(data.get('doctor', dict()))
+        #obj_data['address'] = Address.objects.create_obj(data.get('address', dict()))
         obj_data['location'] = data.get('location')
         obj_data['start_time'] = data.get('start_time')
         obj_data['end_time'] = data.get('end_time')
@@ -26,7 +27,7 @@ class AppointmentManager(models.Manager):
 
 class Appointment(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    #address = models.ForeignKey(Address, on_delete=models.CASCADE)
     location = models.CharField(max_length=50, null=True, blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -41,7 +42,7 @@ class Appointment(models.Model):
     def update(self, data):
         self.doctor = self.doctor.update(data.get('doctor', dict()))
 
-        self.address = data.get('address', self.address)
+        #self.address = data.get('address', self.address)
         self.location = data.get('location', self.location)
         self.start_time = data.get('start_time', self.start_time)
         self.end_time = data.get('end_time', self.end_time)
