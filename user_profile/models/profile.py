@@ -38,7 +38,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='uploads/', default='uploads/no-img.jpg')
-    sex = models.CharField(max_length=10, choices=sex_choices)
+    sex = models.CharField(max_length=10, choices=sex_choices,null=True,blank=True)
     contact_no = models.CharField(max_length=15, blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
 
