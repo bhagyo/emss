@@ -9,7 +9,7 @@ from .models import Address, Appointment, Disease, Doctor, Patient, Profile
 class AddressSerializer(ModelSerializer):
     class Meta:
         model = Address
-        exclude = ['id']
+        fields = '__all__'
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
@@ -23,7 +23,7 @@ class AddressSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email']
+        fields = ['id', 'first_name', 'last_name', 'username', 'email']
         read_only_fields = ['username']
 
 
@@ -119,7 +119,7 @@ class ProfileSerializer(ModelSerializer):
 
     class Meta:
         model = Profile
-        exclude = ['id']
+        fields = '__all__'
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
@@ -135,7 +135,7 @@ class DoctorSerializer(ModelSerializer):
 
     class Meta:
         model = Doctor
-        exclude = ['id']
+        fields = '__all__'
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
@@ -150,7 +150,7 @@ class DiseaseSerializer(ModelSerializer):
     class Meta:
         model = Disease
         # fields = ['__all__']
-        exclude = ['id']
+        fields = '__all__'
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
@@ -168,7 +168,7 @@ class PatientSerializer(ModelSerializer):
     class Meta:
         model = Patient
         # fields = '__all__'
-        exclude = ['id']
+        fields = '__all__'
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
@@ -180,19 +180,20 @@ class PatientSerializer(ModelSerializer):
 
 
 class AppointmentSerializer(ModelSerializer):
-    doctor = DoctorSerializer()
-    address = AddressSerializer()
+    # doctor = DoctorSerializer()
+    # address = AddressSerializer()
     patients = PatientSerializer(many=True, read_only=True)
 
     class Meta:
         model = Appointment
         # fields = ['__all__']
-        exclude = ['id']
+        fields = '__all__'
 
     def update(self, instance, validated_data):
         instance.update(validated_data)
         return instance
 
     def create(self, validated_data):
+        validated_data['doctor'] = Doctor.objects.get(id=doctor_id2)
         Appointment.objects.create_obj(validated_data)
         return validated_data
