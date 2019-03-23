@@ -6,9 +6,9 @@ from .patient import Patient
 
 
 class AppointmentManager(models.Manager):
-    def create_obj(self, data,doctors_id):
+    def create_obj(self, data,doctors_id3):
         obj_data = dict()
-        obj_data['doctor'] = Doctor.objects.get(id=doctors_id)
+        obj_data['doctor'] = Doctor.objects.get(id=doctors_id3)
         #obj_data['doctor'] = Doctor.objects.create_obj(data.get('doctor', dict()))
         #obj_data['address'] = Address.objects.create_obj(data.get('address', dict()))
         obj_data['location'] = data.get('location')
@@ -19,7 +19,7 @@ class AppointmentManager(models.Manager):
 
         patients = data.get('patients', list())
         for _patient in patients:
-            patient = Patient.objects.create_obj(_patient)
+            patient = Patient.objects.get(id=_patient)
             obj.patients.add(patient)
             obj.save()
         return obj
