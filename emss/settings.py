@@ -162,12 +162,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
-    #'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFiltersBackend',),
+    # 'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFiltersBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3000', # react
+    'localhost:3000',  # react
 )
