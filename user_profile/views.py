@@ -3,20 +3,17 @@ from django.contrib.auth import authenticate, login
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED, \
-    HTTP_204_NO_CONTENT
-from rest_framework.permissions import (
-    AllowAny, IsAuthenticated
-)
+from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
 
-from .models import Doctor, Patient, Profile, Address, Appointment, Disease
-from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, DoctorSerializer, PatientSerializer, \
-    AddressSerializer, DiseaseSerializer, AppointmentSerializer, ProfileSerializer
+from .models import Doctor, Patient, Address, Appointment, Disease
+from .serializers import (RegisterSerializer, LoginSerializer, DoctorSerializer, PatientSerializer, AddressSerializer,
+                          DiseaseSerializer, AppointmentSerializer)
 
 
 class DoctorListAPIView(ListAPIView):

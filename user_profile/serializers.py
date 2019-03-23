@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
-from rest_framework.serializers import ModelSerializer, Serializer, ListSerializer
-from rest_framework.fields import BooleanField, CharField, DateField, EmailField, ImageField
+from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.fields import BooleanField, CharField, DateField, EmailField
 from rest_framework.exceptions import NotFound, ValidationError
 
 from .models import Address, Appointment, Disease, Doctor, Patient, Profile
