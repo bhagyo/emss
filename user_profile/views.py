@@ -59,7 +59,7 @@ class LoginAPIView(APIView):
                 login(request, user)
             else:
                 raise AuthenticationFailed(detail='Password did not match', code=HTTP_401_UNAUTHORIZED)
-            return Response({'message': 'User logged in'}, status=HTTP_200_OK)
+            return Response({'message': 'User logged in','user_id':user.profile.doctor.id}, status=HTTP_200_OK)
 
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
@@ -104,3 +104,7 @@ class AppointmentListAPIView(ListAPIView):
 class AppointmentCreateAPIView(CreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
+
+    def appointment_create(self, doctor_id1):
+        serializer = Doctor.objects.get(id = doctor_id1)
+        return Response(serializer)
