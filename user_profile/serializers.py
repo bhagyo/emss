@@ -190,10 +190,11 @@ class AppointmentSerializer(ModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
+        validated_data['patient'] = Patient.objects.get(id=patient_id)
         instance.update(validated_data)
         return instance
 
-    def create(self, validated_data):
+    def get(self, validated_data):
         validated_data['doctor'] = Doctor.objects.get(id=doctor_id2)
         Appointment.objects.create_obj(validated_data)
         return validated_data
