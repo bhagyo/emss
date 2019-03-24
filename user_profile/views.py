@@ -105,6 +105,6 @@ class AppointmentCreateAPIView(CreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
 
-    def appointment_create(self, doctor_id1):
-        serializer = Doctor.objects.get(id = doctor_id1)
-        return Response(serializer)
+class AppointmentPatientAPIView(CreateAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
