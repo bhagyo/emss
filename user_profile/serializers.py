@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer, Serializer
-from rest_framework.fields import BooleanField, CharField, DateField, EmailField
+from rest_framework.fields import BooleanField, CharField, DateField, EmailField, IntegerField, ListField
 from rest_framework.exceptions import NotFound, ValidationError
 
 from .models import Address, Appointment, Disease, Doctor, Patient, Profile
@@ -65,14 +65,23 @@ class RegisterSerializer(Serializer):
     def create(self, validated_data):
 
         user_data = dict()
-        user_data['username'] = validated_data.pop('username')
-        user_data['email'] = validated_data.pop('email')
-        user_data['password'] = validated_data.pop('password')
-        user_data['first_name'] = validated_data.pop('first_name')
-        user_data['last_name'] = validated_data.pop('last_name')
-        validated_data['user'] = user_data
+        user_data['username'] = validated_data['username']
+        user_data['email'] = validated_data['email']
+        user_data['password'] = validated_data['password']
+        user_data['first_name'] = validated_data['first_name']
+        user_data['last_name'] = validated_data['last_name']
 
-        profile = Profile.objects.create_obj(validated_data)
+        user = User.objects.create_user(**user_data)
+
+        user_address_data = validated_data['address']
+        address = Address.objects.create(**user_address_data)
+
+        user_profile_data = dict()
+        user_profile_data['date_of_birth'] = validated_data.get('date_of_birth')
+        user_profile_data['user'] = user
+        user_profile_data['address'] = address
+
+        profile = Profile.objects.create(**user_profile_data)
 
         if validated_data['is_doctor']:
             Doctor.objects.create(profile=profile)
@@ -183,6 +192,31 @@ class AppointmentSerializer(ModelSerializer):
     # doctor = DoctorSerializer()
     # address = AddressSerializer()
     patients = PatientSerializer(many=True, read_only=True)
+    patients_id = ListField(child=IntegerField(), default=list, write_only=True)
+
+    # TODO: add write-only field
+
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'patients', 'patients_id', 'location', 'id', 'start_time', 'end_time', 'patient_amount']
+        # depth=3
+
+    def update(self, instance, validated_data):
+        # validated_data['patient'] = Patient.objects.get(id=patient_id)
+        print(validated_data)
+        instance.update(validated_data)
+        return instance
+
+    def create(self, validated_data):
+        # validated_data['doctor'] = Doctor.objects.get(id=doctor_id2)
+        Appointment.objects.create_obj(validated_data)
+        return validated_data
+
+
+class AppointmentCreateSerializer(ModelSerializer):
+    # doctor = DoctorSerializer()
+    # address = AddressSerializer()
+    patients = PatientSerializer(many=True, read_only=True)
 
     class Meta:
         model = Appointment
@@ -190,7 +224,7 @@ class AppointmentSerializer(ModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
-        validated_data['patient'] = Patient.objects.get(id=patient_id)
+        validated_data['patient'] = Doctor.objects.get(id=patient_id)
         instance.update(validated_data)
         return instance
 
@@ -198,3 +232,12 @@ class AppointmentSerializer(ModelSerializer):
         validated_data['doctor'] = Doctor.objects.get(id=doctor_id2)
         Appointment.objects.create_obj(validated_data)
         return validated_data
+
+
+class AppointmentSurveySerializer(ModelSerializer):
+    doctor = DoctorSerializer()
+
+    class Meta:
+        model = Appointment
+        fields = '__all__'
+        depth = 2

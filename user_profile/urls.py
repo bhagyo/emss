@@ -3,7 +3,7 @@ from django.conf.urls import include
 from .views import (UserCreateAPIView, LoginAPIView, DoctorListAPIView, AddressListAPIView,
                     AddressRetrieveAPIView, DoctorRetrieveAPIView, PatientListAPIView, PatientRetrieveAPIView,
                     DiseaseListAPIView, DiseaseRetrieveAPIView, DiseaseCreateAPIView, DoctorSearchAPIView,
-                    AppointmentListAPIView, AppointmentCreateAPIView
+                    AppointmentListAPIView, AppointmentCreateAPIView, AppointmentGetAPIView, AppointmenSurveytAPIView
                     )
 
 ''''
@@ -34,6 +34,9 @@ urlpatterns = [
 
     path('doctorsearch/', DoctorSearchAPIView.as_view(), name='doctorsearch'),
 
-    path('appointmentlist', AppointmentListAPIView.as_view(), name='AppointmentListAPIView'),
-    path('appointmentcreate', AppointmentCreateAPIView.as_view(), name='appointmentcreate'),
+    path('appointmentlist/', AppointmentListAPIView.as_view(), name='AppointmentListAPIView'),
+    path('appointmentcreate/', AppointmentCreateAPIView.as_view(), name='appointmentcreate'),
+    path('appointmentget/<int:pk>', AppointmentGetAPIView.as_view(), name='appointmentget'),
+
+    path('surveylist/', AppointmenSurveytAPIView.as_view(), name='surveylist'),
 ]
