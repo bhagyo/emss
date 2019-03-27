@@ -46,7 +46,7 @@ class UserCreateAPIView(CreateAPIView):
     permission_classes = [AllowAny, ]
 
 
-class LoginAPIView(APIView):
+class DoctorLoginAPIView(APIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny, ]
 
@@ -64,6 +64,28 @@ class LoginAPIView(APIView):
             else:
                 raise AuthenticationFailed(detail='Password did not match', code=HTTP_401_UNAUTHORIZED)
             return Response({'message': 'User logged in', 'user_id': user.profile.doctor.id}, status=HTTP_200_OK)
+
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class PatientLoginAPIView(APIView):
+    serializer_class = LoginSerializer
+    permission_classes = [AllowAny, ]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+
+            user = authenticate(username=username, password=password)
+
+            if user:
+                login(request, user)
+            else:
+                raise AuthenticationFailed(detail='Password did not match', code=HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'User logged in', 'user_id': user.profile.patient.id}, status=HTTP_200_OK)
 
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 

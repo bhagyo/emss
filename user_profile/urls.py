@@ -1,6 +1,6 @@
 from django.urls import path, include
 from django.conf.urls import include
-from .views import (UserCreateAPIView, LoginAPIView, DoctorListAPIView, AddressListAPIView,
+from .views import (UserCreateAPIView, DoctorLoginAPIView, PatientLoginAPIView, DoctorListAPIView, AddressListAPIView,
                     AddressRetrieveAPIView, DoctorRetrieveAPIView, PatientListAPIView, PatientRetrieveAPIView,
                     DiseaseListAPIView, DiseaseRetrieveAPIView, DiseaseCreateAPIView, DoctorSearchAPIView,
                     AppointmentListAPIView, AppointmentCreateAPIView, AppointmentGetAPIView, AppointmenSurveytAPIView
@@ -23,7 +23,8 @@ urlpatterns = [
 
     path('register/', UserCreateAPIView.as_view(), name='user_register'),
 
-    path('login/', LoginAPIView.as_view(), name='user_login'),
+    path('patientlogin/', PatientLoginAPIView.as_view(), name='patient_login'),
+    path('doctorlogin/', DoctorLoginAPIView.as_view(), name='doctor_login'),
 
     path('address/', AddressListAPIView.as_view(), name='address'),
     path('address/<int:pk>', AddressRetrieveAPIView.as_view(), name='address_retrive'),
